@@ -9,35 +9,20 @@ public class Interact : MonoBehaviour
     public string tipo;
     public bool action;
     public bool interactable;
+    public Transform current;
 
     //DOOR 
-    public Transform pointA, pointB, current;
-
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        player = GameObject.Find("John");
-
-        if (tipo == "Door")
-        {
-            current = pointA;
-        }
-    }
-
+    [SerializeField] private Transform pointA, pointB;
+    
     // Update is called once per frame
     void Update()
     {
-        interactable = player.GetComponent<Player>().interact;
-        if (interactable)
+        if (player)
         {
             switch (tipo)
             {
                 case "Door":
-                    if (action)
-                    {
-                        Door();
-                    }
+                    Door();
                     break;
 
                 case "Item":
@@ -66,17 +51,20 @@ public class Interact : MonoBehaviour
 
     public void Door()
     {
-        if (current == pointA)
+        if (Input.GetKeyDown("e"))
         {
-            player.transform.position = pointB.position;
-            current = pointB;
-            action = false;
-        }
-        else
-        {
-            player.transform.position = pointA.position;
-            current = pointA;
-            action = false;
+            if (current == pointA)
+            {
+                player.transform.position = pointB.position;
+                current = pointB;
+                action = false;
+            }
+            else
+            {
+                player.transform.position = pointA.position;
+                current = pointA;
+                action = false;
+            }
         }
     }
 
