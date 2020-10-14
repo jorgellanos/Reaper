@@ -6,10 +6,11 @@ public class Interact : MonoBehaviour
 {
     //GENERAL
     public GameObject player;
-    public string tipo;
-    public bool action;
-    public bool interactable;
-    public Transform current;
+    public enum Tipo { Door, Locked, Item, Action, Talk };
+    public Tipo type;
+    private bool action;
+    [HideInInspector] public Transform current;
+    [HideInInspector] public bool interactable;
 
     //DOOR 
     [SerializeField] private Transform pointA, pointB;
@@ -19,31 +20,20 @@ public class Interact : MonoBehaviour
     {
         if (player)
         {
-            switch (tipo)
+            switch (type)
             {
-                case "Door":
+                case Tipo.Door:
                     Door();
                     break;
-
-                case "Item":
-                    if (action)
-                    {
-                        PickUp();
-                    }
+                case Tipo.Locked:
                     break;
-
-                case "Action":
-                    if (action)
-                    {
-                        Activate();
-                    }
+                case Tipo.Item:
                     break;
-
-                case "Talk":
-                    if (action)
-                    {
-                        Talk();
-                    }
+                case Tipo.Action:
+                    break;
+                case Tipo.Talk:
+                    break;
+                default:
                     break;
             }
         }

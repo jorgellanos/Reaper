@@ -105,7 +105,7 @@ public class Player : MonoBehaviour
     {
         if (interact)
         {
-            i.action = true;
+            
         }
     }
 

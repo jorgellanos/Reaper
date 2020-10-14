@@ -7,7 +7,7 @@ public class EnemyZ1 : MonoBehaviour
 {
     public float health, stamina, speed, damage;
     public Transform target;
-    public bool isFlipped, inRange;
+    public bool isFlipped, inRange, targetAquired;
     public float distance, dist, dir;
     public Animator an;
     
@@ -15,27 +15,45 @@ public class EnemyZ1 : MonoBehaviour
     {
         if (!an)
         {
-            an = GetComponent<Animator>();
+            //an = GetComponent<Animator>();
         }
     }
 
     // Update is called once per frame
     void Update()
     {
-        dir = transform.position.x - target.position.x;
-        dist = Vector2.Distance(transform.position, target.position);
-        if (dist <= distance)
-        {
-            an.SetBool("InSight", true);
-        }
-        else
-        {
-            an.SetBool("InSight", false);
-        }
+        CheckForTarget();
+        FollowTarget();
+    }
 
-        if (isFlipped)
+    private void CheckForTarget()
+    {
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector2.right * 5f);
+        Debug.DrawRay(transform.position, Vector2.right * 5f);
+        // If it hits something...
+        if (hit.collider != null)
         {
-            LookAtPlayer();
+            if (hit.collider.tag == "Player")
+            {
+                targetAquired = true;
+                target = hit.transform;
+                LookAtPlayer();
+            }
+            else
+            {
+                if (targetAquired)
+                {
+                    StartCoroutine(Find(5));
+                }
+            }
+        }
+    }
+
+    public void FollowTarget()
+    {
+        if (target)
+        {
+            transform.position = Vector2.MoveTowards(transform.position, target.position, speed * Time.deltaTime);
         }
     }
 
@@ -71,11 +89,10 @@ public class EnemyZ1 : MonoBehaviour
         }
     }
 
-    public void Attack()
+    IEnumerator Find(int sec)
     {
-        if (inRange)
-        {
-            target.GetComponent<Player>().Health -= 3;
-        }
+        yield return new WaitForSeconds(sec);
+        targetAquired = false;
+        target = null;
     }
 }
