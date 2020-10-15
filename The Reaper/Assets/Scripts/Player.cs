@@ -7,16 +7,17 @@ public class Player : MonoBehaviour
     #region Variables y Referencias
     // Variables
     public float Health, stamina, damage;
-    public bool hit, tic, strong, interact;
-    public string direccionAtq, direccion;
-    public int comboNum;
-    public float timeHit;
-    public float time;
+    [SerializeField] private bool hit, tic, strong, interact;
+    private string direccionAtq, direccion;
+    private int comboNum;
+    private float timeHit;
+    private float time;
 
     // Referencias
     private Animator an;
     private Interact i;
     private Rigidbody2D rb;
+    [SerializeField] private Scythe scythe;
     #endregion
 
     // Use this for initialization
@@ -24,6 +25,7 @@ public class Player : MonoBehaviour
     {
         an = this.GetComponent<Animator>();
         rb = this.GetComponent<Rigidbody2D>();
+        scythe.damage = damage;
         comboNum = 0;
         direccion = "Right";
         hit = false;
@@ -42,10 +44,7 @@ public class Player : MonoBehaviour
         Timer();
 
         // Interact
-        if (Input.GetKeyDown("d"))
-        {
-            Interaction();
-        }
+        
 
         // Fight
         ComboFighting();
@@ -99,14 +98,6 @@ public class Player : MonoBehaviour
     {
         an.SetBool("Hitting", hit);
         an.SetInteger("Combo", comboNum);
-    }
-
-    public void Interaction()
-    {
-        if (interact)
-        {
-            
-        }
     }
 
     public void Timer()

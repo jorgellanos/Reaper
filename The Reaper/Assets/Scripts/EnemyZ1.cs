@@ -6,16 +6,19 @@ using UnityEngine;
 public class EnemyZ1 : MonoBehaviour
 {
     public float health, stamina, speed, damage;
-    public Transform target;
-    public bool isFlipped, inRange, targetAquired;
-    public float distance, dist, dir;
-    public Animator an;
+    [SerializeField] private Transform target;
+    [SerializeField] private EnemyAttack at;
+    private bool isFacingRight, inRange, targetAquired, hit;
+    private float distance, dist, dir, oldSpeed;
+    private Animator an;
     
     private void Awake()
     {
+        oldSpeed = speed;
+        at.damage = damage;
         if (!an)
         {
-            //an = GetComponent<Animator>();
+            an = GetComponent<Animator>();
         }
     }
 
@@ -24,12 +27,16 @@ public class EnemyZ1 : MonoBehaviour
     {
         CheckForTarget();
         FollowTarget();
+        if (target)
+        {
+            LookAtPlayer();
+        }
     }
 
     private void CheckForTarget()
     {
-        RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector2.right * 5f);
-        Debug.DrawRay(transform.position, Vector2.right * 5f);
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, transform.right * 5f);
+        Debug.DrawRay(transform.position, transform.right * 5f);
         // If it hits something...
         if (hit.collider != null)
         {
@@ -37,7 +44,6 @@ public class EnemyZ1 : MonoBehaviour
             {
                 targetAquired = true;
                 target = hit.transform;
-                LookAtPlayer();
             }
             else
             {
@@ -60,9 +66,27 @@ public class EnemyZ1 : MonoBehaviour
     public void LookAtPlayer()
     {
         Vector3 vectorToTarget = target.transform.position - transform.position;
-        float angle = Mathf.Atan2(vectorToTarget.y, vectorToTarget.x) * Mathf.Rad2Deg;
-        Quaternion q = Quaternion.AngleAxis(angle, Vector3.up);
-        transform.rotation = Quaternion.Slerp(transform.rotation, q, Time.deltaTime * speed * 10);
+        if (vectorToTarget.x > 0)
+        {
+            isFacingRight = true;
+            transform.rotation = Quaternion.Euler(0, 0, 0);
+        }
+        else if (vectorToTarget.x < 0)
+        {
+            isFacingRight = false;
+            transform.rotation = Quaternion.Euler(0,180,0);
+        }
+    }
+
+    private void Attack()
+    {
+        if (target && hit)
+        {
+            if (inRange)
+            {
+                an.Play("Attack");
+            }
+        }
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -70,6 +94,7 @@ public class EnemyZ1 : MonoBehaviour
         if (collision.tag == "Player")
         {
             inRange = true;
+            StartCoroutine(AttackSequence(0.5f));
         }
     }
 
@@ -94,5 +119,14 @@ public class EnemyZ1 : MonoBehaviour
         yield return new WaitForSeconds(sec);
         targetAquired = false;
         target = null;
+    }
+
+    IEnumerator AttackSequence(float delay)
+    {
+        speed = 0;
+        yield return new WaitForSeconds(delay);
+        hit = true;
+        Attack();
+        speed = oldSpeed;
     }
 }
