@@ -5,15 +5,17 @@ using UnityEngine;
 
 public class EnemyZ1 : MonoBehaviour
 {
-    public float health, stamina, speed, damage;
+    public float health, stamina, speed, damage, distance;
     [SerializeField] private Transform target;
     [SerializeField] private EnemyAttack at;
     private bool isFacingRight, inRange, targetAquired, hit;
-    private float distance, dist, dir, oldSpeed;
+    private float oldSpeed;
     private Animator an;
+    private Rigidbody2D rb;
     
     private void Awake()
     {
+        rb = GetComponent<Rigidbody2D>();
         oldSpeed = speed;
         at.damage = damage;
         if (!an)
@@ -26,10 +28,37 @@ public class EnemyZ1 : MonoBehaviour
     void Update()
     {
         CheckForTarget();
-        FollowTarget();
         if (target)
         {
+            CheckRange();
             LookAtPlayer();
+            FollowTarget();
+            if (inRange)
+            {
+                Attack();
+            }
+        }
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.tag == "Scythe")
+        {
+            Hurt(collision.GetComponent<Scythe>().damage);
+        }
+    }
+
+    private void CheckRange()
+    {
+        distance = Vector2.Distance(transform.position, target.position);
+        if (distance <= 1.5f)
+        {
+            inRange = true;
+            hit = true;
+        }
+        else
+        {
+            inRange = false;
         }
     }
 
@@ -40,6 +69,7 @@ public class EnemyZ1 : MonoBehaviour
         // If it hits something...
         if (hit.collider != null)
         {
+            an.SetBool("InSight", false);
             if (hit.collider.tag == "Player")
             {
                 targetAquired = true;
@@ -57,8 +87,9 @@ public class EnemyZ1 : MonoBehaviour
 
     public void FollowTarget()
     {
-        if (target)
+        if (!inRange)
         {
+            an.SetBool("InSight", true);
             transform.position = Vector2.MoveTowards(transform.position, target.position, speed * Time.deltaTime);
         }
     }
@@ -80,38 +111,21 @@ public class EnemyZ1 : MonoBehaviour
 
     private void Attack()
     {
-        if (target && hit)
+        if (hit)
         {
-            if (inRange)
+            if (!an.GetCurrentAnimatorStateInfo(0).IsTag("Attacking") || !an.GetCurrentAnimatorStateInfo(0).IsTag("Hurted"))
             {
-                an.Play("Attack");
+                StartCoroutine(AttackSequence(0.5f));
             }
         }
     }
 
-    private void OnTriggerEnter2D(Collider2D collision)
+    public void Hurt(float damage)
     {
-        if (collision.tag == "Player")
-        {
-            inRange = true;
-            StartCoroutine(AttackSequence(0.5f));
-        }
-    }
-
-    private void OnTriggerStay2D(Collider2D collision)
-    {
-        if (collision.tag == "Player")
-        {
-            inRange = true;
-        }
-    }
-
-    private void OnTriggerExit2D(Collider2D collision)
-    {
-        if (collision.tag == "Player")
-        {
-            inRange = false;
-        }
+        health -= damage;
+        an.SetTrigger("Hurt");
+        Vector3 dir = transform.right;
+        rb.AddForce(new Vector2(-dir.x * 3f, 1.5f), ForceMode2D.Impulse);
     }
 
     IEnumerator Find(int sec)
@@ -125,8 +139,8 @@ public class EnemyZ1 : MonoBehaviour
     {
         speed = 0;
         yield return new WaitForSeconds(delay);
-        hit = true;
-        Attack();
+        an.SetTrigger("Attack");
         speed = oldSpeed;
+        hit = false;
     }
 }

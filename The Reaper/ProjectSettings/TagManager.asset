@@ -8,6 +8,7 @@ TagManager:
   - Moving Ground
   - Attack
   - Enemy
+  - Scythe
   layers:
   - Default
   - TransparentFX
@@ -19,8 +20,8 @@ TagManager:
   - 
   - Ground
   - Moving Platforms
-  - 
-  - 
+  - Ignore Player
+  - Player
   - 
   - 
   - 

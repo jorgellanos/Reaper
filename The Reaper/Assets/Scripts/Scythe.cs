@@ -33,11 +33,6 @@ public class Scythe : MonoBehaviour {
             rg = collision.GetComponent<Rigidbody2D>();
             touch = true;
         }
-
-        if (collision.tag == "Enemy")
-        {
-            collision.GetComponent<EnemyZ1>().health -= damage;
-        }
     }
 
     private void OnTriggerExit2D(Collider2D collision)

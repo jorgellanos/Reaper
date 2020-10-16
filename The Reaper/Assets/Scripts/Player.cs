@@ -7,7 +7,7 @@ public class Player : MonoBehaviour
     #region Variables y Referencias
     // Variables
     public float Health, stamina, damage;
-    [SerializeField] private bool hit, tic, strong, interact;
+    [SerializeField] private bool hit, strong, interact;
     private string direccionAtq, direccion;
     private int comboNum;
     private float timeHit;
@@ -29,7 +29,6 @@ public class Player : MonoBehaviour
         comboNum = 0;
         direccion = "Right";
         hit = false;
-        tic = false;
         time = 2;
         timeHit = 0;
     }
@@ -92,6 +91,14 @@ public class Player : MonoBehaviour
         }
     }
     #endregion
+
+    public void Hurt(float damage)
+    {
+        Health -= damage;
+        an.Play("Hurt");
+        Vector3 dir = transform.right;
+        rb.AddForce(new Vector2(-dir.x * 3f, 1.5f), ForceMode2D.Impulse);
+    }
 
     // Control de animaciones
     public void AnimCtrl()
