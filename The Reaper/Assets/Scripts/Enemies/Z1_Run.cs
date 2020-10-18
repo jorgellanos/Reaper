@@ -5,24 +5,29 @@ using UnityEngine;
 public class Z1_Run : StateMachineBehaviour
 {
     private Transform target, me;
-    private float speed, distance, attackRange;
+    private float speed, distance, attackRange, sight;
 
     // OnStateEnter is called when a transition starts and the state machine starts to evaluate this state
     override public void OnStateEnter(Animator animator, AnimatorStateInfo stateinfo, int layerindex)
     {
-        target = GameObject.FindGameObjectWithTag("Player").transform;
+        target = animator.GetComponent<EnemyZ1>().target;
         me = animator.GetComponent<Transform>();
         speed = animator.GetComponent<EnemyZ1>().speed;
         attackRange = animator.GetComponent<EnemyZ1>().attackRange;
+        sight = animator.GetComponent<EnemyZ1>().SightRange;
     }
 
     // OnStateUpdate is called on each Update frame between OnStateEnter and OnStateExit callbacks
     override public void OnStateUpdate(Animator animator, AnimatorStateInfo stateinfo, int layerindex)
     {
-        me.transform.position = Vector2.MoveTowards(me.transform.position, target.position, speed * Time.fixedDeltaTime);
+        if (target)
+        {
+            me.transform.position = Vector2.MoveTowards(me.transform.position, target.position, speed * Time.fixedDeltaTime);
+        }
         distance = Vector2.Distance(me.transform.position, target.position);
         if (distance <= attackRange)
         {
+            speed = 0;
             animator.SetTrigger("Attack");
         }
     }
@@ -31,5 +36,6 @@ public class Z1_Run : StateMachineBehaviour
     override public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
         animator.ResetTrigger("Attack");
+        speed = animator.GetComponent<EnemyZ1>().oldSpeed;
     }
 }

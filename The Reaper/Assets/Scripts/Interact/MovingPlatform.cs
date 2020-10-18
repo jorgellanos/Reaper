@@ -34,7 +34,7 @@ public class MovingPlatform : MonoBehaviour
     {
         if (collision.collider.tag == "Player")
         {
-            if (!isAutomatic)
+            if (!isAutomatic && collision.transform.position.y > transform.position.y)
             {
                 isMoving = true;
             }

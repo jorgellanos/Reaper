@@ -8,7 +8,7 @@ public class Interact : MonoBehaviour
     public GameObject player;
     public enum Tipo { Door, Locked, Item, Action, Talk };
     public Tipo type;
-    private bool action;
+    [HideInInspector] public bool action;
     [HideInInspector] public Transform current;
     [HideInInspector] public bool interactable;
 
@@ -23,7 +23,10 @@ public class Interact : MonoBehaviour
             switch (type)
             {
                 case Tipo.Door:
-                    Door();
+                    if (action)
+                    {
+                        Door();
+                    }
                     break;
                 case Tipo.Locked:
                     break;

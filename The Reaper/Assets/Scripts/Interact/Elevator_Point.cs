@@ -16,6 +16,7 @@ public class Elevator_Point : MonoBehaviour
     {
         if (collision.tag == "Player")
         {
+            main.action = true;
             main.player = collision.gameObject;
             main.current = transform;
         }
@@ -27,6 +28,11 @@ public class Elevator_Point : MonoBehaviour
         {
             main.player = collision.gameObject;
             main.current = transform;
+            main.action = true;
+        }
+        else
+        {
+            main.action = false;
         }
     }
 
@@ -35,6 +41,7 @@ public class Elevator_Point : MonoBehaviour
         if (collision.tag == "Player")
         {
             main.player = null;
+            main.action = false;
         }
     }
 }
