@@ -68,6 +68,11 @@ public class EnemyZ1 : MonoBehaviour
         }
     }
 
+    public void SetAtkSpeed(float speed)
+    {
+        an.SetFloat("ATKspeed", speed);
+    }
+
     private void LookAtPlayer()
     {
         Vector3 vectorToTarget = target.transform.position - transform.position;
