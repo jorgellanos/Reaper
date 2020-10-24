@@ -10,7 +10,6 @@ public class EnemyAttack : MonoBehaviour
     {
         if (collision.tag == "Player")
         {
-            Debug.Log("HIT STRIKED");
             collision.GetComponent<Player>().Hurt(damage);
         }
     }

@@ -6,10 +6,12 @@ public class Z1_Run : StateMachineBehaviour
 {
     private Transform target, me;
     private float speed, distance, attackRange, sight;
+    private Rigidbody2D rb;
 
     // OnStateEnter is called when a transition starts and the state machine starts to evaluate this state
     override public void OnStateEnter(Animator animator, AnimatorStateInfo stateinfo, int layerindex)
     {
+        rb = animator.GetComponent<Rigidbody2D>();
         target = animator.GetComponent<EnemyZ1>().target;
         me = animator.GetComponent<Transform>();
         speed = animator.GetComponent<EnemyZ1>().speed;
@@ -22,7 +24,8 @@ public class Z1_Run : StateMachineBehaviour
     {
         if (target)
         {
-            me.transform.position = Vector2.MoveTowards(me.transform.position, target.position, speed * Time.fixedDeltaTime);
+            Vector2 m = new Vector2(target.position.x, me.position.y);
+            me.transform.position = Vector2.MoveTowards(me.transform.position, m, speed * Time.fixedDeltaTime);
         }
         distance = Vector2.Distance(me.transform.position, target.position);
         if (distance <= attackRange)

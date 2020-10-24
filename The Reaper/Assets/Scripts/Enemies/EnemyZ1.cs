@@ -12,10 +12,13 @@ public class EnemyZ1 : MonoBehaviour
     [HideInInspector] public float oldSpeed;
     private Animator an;
     private Rigidbody2D rb;
-
+    private Transform m_GroundCheck;
+    private bool m_Grounded;
+    [SerializeField] private LayerMask m_WhatIsGround;
 
     private void Awake()
     {
+        m_GroundCheck = transform.Find("Feet");
         rb = GetComponent<Rigidbody2D>();
         oldSpeed = speed;
         at.damage = damage;
@@ -35,6 +38,11 @@ public class EnemyZ1 : MonoBehaviour
         }
     }
 
+    private void FixedUpdate()
+    {
+        GroundCheck();
+    }
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.tag == "Scythe")
@@ -49,9 +57,32 @@ public class EnemyZ1 : MonoBehaviour
         }
     }
 
+    private void GroundCheck()
+    {
+        m_Grounded = false;
+        Collider2D[] colliders = Physics2D.OverlapCircleAll(m_GroundCheck.position, 0.05f, m_WhatIsGround);
+        for (int i = 0; i < colliders.Length; i++)
+        {
+            if (colliders[i].gameObject != gameObject)
+            {
+                m_Grounded = true;
+            }
+        }
+
+        if (!m_Grounded)
+        {
+            rb.velocity = new Vector2(rb.velocity.x, -25f * Time.deltaTime);
+        }
+        else
+        {
+            rb.velocity = new Vector2(rb.velocity.x, 0);
+        }
+    }
+
     private void CheckForTarget()
     {
         RaycastHit2D hit = Physics2D.Raycast(transform.Find("EYES").position, transform.right * (SightRange + 2));
+        Debug.DrawRay(transform.Find("EYES").position, transform.right * (SightRange + 2));
         // If it hits something...
         if (hit.collider != null)
         {
@@ -93,7 +124,7 @@ public class EnemyZ1 : MonoBehaviour
         health -= damage;
         an.SetTrigger("Hurt");
         Vector3 dir = transform.right;
-        rb.AddForce(new Vector2(-dir.x * 3f, 1.2f), ForceMode2D.Impulse);
+        //rb.AddForce(new Vector2(-dir.x * 3f, 1.2f), ForceMode2D.Impulse);
     }
 
     public void Dead()
