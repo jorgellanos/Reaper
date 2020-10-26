@@ -71,7 +71,7 @@ public class EnemyZ1 : MonoBehaviour
 
         if (!m_Grounded)
         {
-            rb.velocity = new Vector2(rb.velocity.x, -25f * Time.deltaTime);
+            rb.velocity = new Vector2(rb.velocity.x, -250f * Time.deltaTime);
         }
         else
         {
