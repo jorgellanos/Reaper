@@ -8,10 +8,13 @@ public class Player : MonoBehaviour
     // Variables
     public float Health, stamina, damage;
     [SerializeField] private bool hit, strong, interact;
-    private string direccionAtq, direccion;
+    [SerializeField] private string direccionAtq, direccion, fightSequence;
     private int comboNum;
     private float timeHit;
     private float time;
+
+    // Keycode Array
+    [SerializeField] private string[] combo = new string[2];
 
     // Referencias
     private Animator an;
@@ -97,7 +100,7 @@ public class Player : MonoBehaviour
         Health -= damage;
         an.Play("Hurt");
         Vector3 dir = transform.right;
-        rb.AddForce(new Vector2(-dir.x * 3f, 1.5f), ForceMode2D.Impulse);
+        //rb.AddForce(new Vector2(-dir.x * 3f, 1.5f), ForceMode2D.Impulse);
     }
 
     // Control de animaciones
@@ -117,7 +120,32 @@ public class Player : MonoBehaviour
         else
         {
             timeHit = 0;
-            comboNum = 0;
+            for (int i = 0; i < combo.Length; i++)
+            {
+                combo[i] = string.Empty;
+                fightSequence = string.Empty;
+            }
+        }
+    }
+
+    public void ComboEnd()
+    {
+        comboNum = 0;
+    }
+
+    private void AddToCombo(string action)
+    {
+        for (int i = 0; i < combo.Length;)
+        {
+            if (combo[i] == string.Empty)
+            {
+                combo[i] = action;
+                return;
+            }
+            else
+            {
+                i++;
+            }
         }
     }
 
@@ -125,15 +153,9 @@ public class Player : MonoBehaviour
     {
         if (Input.GetKeyDown("s"))
         {
-            hit = true;
-            if (an.GetBool("Ground"))
-            {
-                GroundFight();
-            }
-            else if (!an.GetBool("Ground"))
-            {
-                //AirFight();
-            }
+            AddToCombo("Hit");
+            timeHit = 1f;
+            GroundFight();
         }
     }
 
@@ -144,17 +166,19 @@ public class Player : MonoBehaviour
 
     public void GroundFight()
     {
-        switch (comboNum)
+        for (int i = 0; i < combo.Length; i++)
         {
-            case 0:
-                an.Play("ATKRight");
+            fightSequence += combo[i];
+        }
+
+        switch (fightSequence)
+        {
+            case "Hit":
                 comboNum = 1;
-                timeHit = 0.4f;
                 break;
 
-            case 1:
+            case "HitHit":
                 comboNum = 2;
-                timeHit = 1f;
                 break;
         }
     }

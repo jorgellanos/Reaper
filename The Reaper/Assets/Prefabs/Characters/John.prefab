@@ -111,8 +111,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1650755528438677557}
-  - component: {fileID: 1650755528438677556}
   - component: {fileID: 1650755528438677553}
+  - component: {fileID: 1650755528438677556}
   - component: {fileID: 1650755528438677515}
   - component: {fileID: 1650755528438677552}
   - component: {fileID: 1650755528438677559}
@@ -144,6 +144,28 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1650755528438677553
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1650755528438677514}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b7d95037547626243b1fade837ce0bdb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Health: 100
+  stamina: 100
+  damage: 6
+  hit: 0
+  strong: 0
+  interact: 0
+  combo:
+  - 
+  - 
+  scythe: {fileID: 3437583373450823261}
 --- !u!212 &1650755528438677556
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -195,26 +217,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &1650755528438677553
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1650755528438677514}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b7d95037547626243b1fade837ce0bdb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Health: 100
-  stamina: 100
-  damage: 6
-  hit: 0
-  tic: 0
-  strong: 0
-  interact: 0
-  scythe: {fileID: 3437583373450823261}
 --- !u!95 &1650755528438677515
 Animator:
   serializedVersion: 3

@@ -53,7 +53,6 @@ public class EnemyZ1 : MonoBehaviour
                 an.SetTrigger("Death");
                 transform.Find("Effects").gameObject.SetActive(true);
             }
-
         }
     }
 
