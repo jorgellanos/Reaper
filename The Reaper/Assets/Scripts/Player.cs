@@ -9,8 +9,8 @@ public class Player : MonoBehaviour
     public float Health, stamina, damage;
     [SerializeField] private bool hit, strong, interact;
     [SerializeField] private string direccionAtq, direccion, fightSequence;
-    private int comboNum;
-    private float timeHit;
+    [SerializeField] private int comboNum;
+    [SerializeField] private float timeHit;
     private float time;
 
     // Keycode Array
@@ -39,17 +39,12 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        // Get Anims
-        AnimCtrl();
-
-        // Cronometro para COMBOS
-        Timer();
-
-        // Interact
-        
-
         // Fight
         ComboFighting();
+        // Get Anims
+        AnimCtrl();
+        // Cronometro para COMBOS
+        Timer();
     }
 
     #region Triggers
@@ -108,6 +103,11 @@ public class Player : MonoBehaviour
     {
         an.SetBool("Hitting", hit);
         an.SetInteger("Combo", comboNum);
+        if (!an.GetCurrentAnimatorStateInfo(0).IsTag("Attack"))
+        {
+            time = 0;
+            comboNum = 0;
+        }
     }
 
     public void Timer()
@@ -128,17 +128,13 @@ public class Player : MonoBehaviour
         }
     }
 
-    public void ComboEnd()
-    {
-        comboNum = 0;
-    }
-
     private void AddToCombo(string action)
     {
         for (int i = 0; i < combo.Length;)
         {
             if (combo[i] == string.Empty)
             {
+                fightSequence += action;
                 combo[i] = action;
                 return;
             }
@@ -153,6 +149,7 @@ public class Player : MonoBehaviour
     {
         if (Input.GetKeyDown("s"))
         {
+            hit = true;
             AddToCombo("Hit");
             timeHit = 1f;
             GroundFight();
@@ -166,11 +163,6 @@ public class Player : MonoBehaviour
 
     public void GroundFight()
     {
-        for (int i = 0; i < combo.Length; i++)
-        {
-            fightSequence += combo[i];
-        }
-
         switch (fightSequence)
         {
             case "Hit":
