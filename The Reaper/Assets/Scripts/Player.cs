@@ -32,7 +32,7 @@ public class Player : MonoBehaviour
         comboNum = 0;
         direccion = "Right";
         hit = false;
-        time = 2;
+        time = 1.5f;
         timeHit = 0;
     }
 
@@ -103,11 +103,6 @@ public class Player : MonoBehaviour
     {
         an.SetBool("Hitting", hit);
         an.SetInteger("Combo", comboNum);
-        if (!an.GetCurrentAnimatorStateInfo(0).IsTag("Attack"))
-        {
-            time = 0;
-            comboNum = 0;
-        }
     }
 
     public void Timer()
@@ -120,6 +115,8 @@ public class Player : MonoBehaviour
         else
         {
             timeHit = 0;
+            comboNum = 0;
+            hit = false;
             for (int i = 0; i < combo.Length; i++)
             {
                 combo[i] = string.Empty;
@@ -151,7 +148,7 @@ public class Player : MonoBehaviour
         {
             hit = true;
             AddToCombo("Hit");
-            timeHit = 1f;
+            timeHit = 0.5f;
             GroundFight();
         }
     }
