@@ -39,6 +39,8 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        // Direccion
+        Estados();
         // Fight
         ComboFighting();
         // Get Anims
@@ -169,6 +171,10 @@ public class Player : MonoBehaviour
             case "HitHit":
                 comboNum = 2;
                 break;
+
+            case "UpUpHit":
+                Debug.Log("UpperCUT");
+                break;
         }
     }
 
@@ -211,21 +217,21 @@ public class Player : MonoBehaviour
     {
         if (Input.GetKeyDown("up"))
         {
-            direccionAtq = "Arriba";
+            AddToCombo("Up");
         }
 
         if (Input.GetKeyDown("down"))
         {
-            direccionAtq = "Abajo";
+            AddToCombo("Down");
         }
 
         if (Input.GetKeyDown("left shift"))
         {
-            strong = true;
+            //AddToCombo("Up");
         }
         else if (Input.GetKeyUp("left shift"))
         {
-            strong = false;
+           //AddToCombo("Up");
         }
 
         if (!Input.anyKey)
