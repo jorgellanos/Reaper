@@ -6,9 +6,9 @@ using UnityEngine;
 public class EnemyZ1 : MonoBehaviour
 {
     public float health, stamina, speed, damage, attackRange, SightRange;
-    public Transform target;
+    public Transform target, pointA, pointB;
     [SerializeField] private EnemyAttack at;
-    private bool isFacingRight, runTime;
+    [HideInInspector] public bool isFacingRight, runTime;
     [HideInInspector] public float oldSpeed;
     private Animator an;
     private Rigidbody2D rb;
@@ -18,6 +18,8 @@ public class EnemyZ1 : MonoBehaviour
 
     private void Awake()
     {
+        pointA.parent = transform.parent;
+        pointB.parent = transform.parent;
         m_GroundCheck = transform.Find("Feet");
         rb = GetComponent<Rigidbody2D>();
         oldSpeed = speed;
