@@ -47,7 +47,8 @@ namespace UnityStandardAssets._2D
 
             // Set the vertical animation
             m_Anim.SetFloat("vSpeed", m_Rigidbody2D.velocity.y);
-            
+
+            //CheckGround();
         }
 
 
@@ -111,6 +112,21 @@ namespace UnityStandardAssets._2D
             Vector3 theScale = transform.localScale;
             theScale.x *= -1;
             transform.localScale = theScale;
+        }
+
+        private void CheckGround()
+        {
+            RaycastHit2D hit = Physics2D.Raycast(transform.Find("GroundCheck").position, -transform.up * 1);
+            Debug.DrawRay(transform.position, -transform.up * 1, Color.red);
+            // If it hits something...
+            if (hit.collider != null)
+            {
+                if (hit.collider.tag == "Ground")
+                {
+                    float dist = Vector3.Distance(transform.Find("GroundCheck").position, hit.transform.position);
+                    Debug.Log("DIST: " + dist);
+                }
+            }
         }
     }
 }
