@@ -51,6 +51,15 @@ namespace UnityStandardAssets._2D
             //CheckGround();
         }
 
+        public void WallCheck()
+        {
+            RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector2.right);
+
+            if (hit.collider.tag == "wall")
+            {
+
+            }
+        }
 
         public void Move(float move, bool crouch, bool jump)
         {
@@ -78,6 +87,7 @@ namespace UnityStandardAssets._2D
 
                 // Move the character
                 m_Rigidbody2D.velocity = new Vector2(move*m_MaxSpeed, m_Rigidbody2D.velocity.y);
+                //m_Rigidbody2D.AddForce(new Vector2(move * m_MaxSpeed, m_Rigidbody2D.velocity.y));
 
                 // If the input is moving the player right and the player is facing left...
                 if (move > 0 && !m_FacingRight)

@@ -9,6 +9,7 @@ TagManager:
   - Attack
   - Enemy
   - Scythe
+  - Wall
   layers:
   - Default
   - TransparentFX
