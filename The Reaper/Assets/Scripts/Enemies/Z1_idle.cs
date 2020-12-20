@@ -4,26 +4,23 @@ using UnityEngine;
 
 public class Z1_idle : StateMachineBehaviour
 {
-    private Transform pointA, pointB, target;
     private bool isMoving;
-    private float speed, time;
+    private float speed;
 
     // OnStateEnter is called when a transition starts and the state machine starts to evaluate this state
     override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
         isMoving = true;
-        time = 3f;
         speed = animator.GetComponent<EnemyZ1>().speed;
-        pointA = animator.GetComponent<EnemyZ1>().pointA;
-        pointB = animator.GetComponent<EnemyZ1>().pointB;
-        target = pointA;
     }
 
     // OnStateUpdate is called on each Update frame between OnStateEnter and OnStateExit callbacks
     override public void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        LookAtTarget(animator.GetComponent<EnemyZ1>().isFacingRight, animator.transform);
-        Move(animator.transform);
+        if (animator.GetComponent<EnemyZ1>().type == EnemyZ1.Tipo.patrol)
+        {
+            Move(animator.gameObject);
+        }
     }
 
     // OnStateExit is called when a transition ends and the state machine finishes evaluating this state
@@ -32,46 +29,17 @@ public class Z1_idle : StateMachineBehaviour
         
     }
 
-    private void Move(Transform transform)
+    private void Move(GameObject obj)
     {
-        transform.position = Vector3.MoveTowards(transform.position, target.position, speed * Time.deltaTime);
-        if (transform.position == target.position)
+        float dir = 1;
+        if (obj.GetComponent<EnemyZ1>().isFacingRight)
         {
-            isMoving = false;
-            Timer();
+            dir = 1;
         }
-    }
-
-    private void Timer()
-    {
-        time -= 1f;
-        if (time <= 0)
+        else
         {
-            time = 0;
-            isMoving = true;
-            if (target == pointA)
-            {
-                target = pointB;
-            }
-            else
-            {
-                target = pointA;
-            }
+            dir = -1;
         }
-    }
-
-    private void LookAtTarget(bool isFacingRight, Transform transform)
-    {
-        Vector3 vectorToTarget = target.transform.position - transform.position;
-        if (vectorToTarget.x > 0)
-        {
-            isFacingRight = true;
-            transform.rotation = Quaternion.Euler(0, 0, 0);
-        }
-        else if (vectorToTarget.x < 0)
-        {
-            isFacingRight = false;
-            transform.rotation = Quaternion.Euler(0, 180, 0);
-        }
+        obj.GetComponent<Rigidbody2D>().velocity = new Vector2(speed * dir, 0);
     }
 }

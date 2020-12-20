@@ -6,20 +6,20 @@ using UnityEngine;
 public class EnemyZ1 : MonoBehaviour
 {
     public float health, stamina, speed, damage, attackRange, SightRange;
-    public Transform target, pointA, pointB;
+    public Transform target;
+    public enum Tipo { stay, patrol}
+    public Tipo type;
     [SerializeField] private EnemyAttack at;
-    [HideInInspector] public bool isFacingRight, runTime;
+    [HideInInspector] public bool isFacingRight, runTime, onWall;
     [HideInInspector] public float oldSpeed;
     private Animator an;
     private Rigidbody2D rb;
     private Transform m_GroundCheck;
-    private bool m_Grounded;
+    private bool m_Grounded, fallWarning;
     [SerializeField] private LayerMask m_WhatIsGround;
 
     private void Awake()
     {
-        pointA.parent = transform.parent;
-        pointB.parent = transform.parent;
         m_GroundCheck = transform.Find("Feet");
         rb = GetComponent<Rigidbody2D>();
         oldSpeed = speed;
@@ -56,6 +56,28 @@ public class EnemyZ1 : MonoBehaviour
                 transform.Find("Effects").gameObject.SetActive(true);
             }
         }
+
+        if (collision.tag == "Wall")
+        {
+            if (type == Tipo.patrol)
+            {
+                TurnAround();
+            }
+        }
+    }
+
+    public void TurnAround()
+    {
+        if (isFacingRight)
+        {
+            isFacingRight = false;
+            transform.rotation = Quaternion.Euler(0, 180, 0);
+        }
+        else
+        {
+            isFacingRight = true;
+            transform.rotation = Quaternion.Euler(0, 0, 0);
+        }
     }
 
     private void GroundCheck()
@@ -68,6 +90,17 @@ public class EnemyZ1 : MonoBehaviour
             {
                 m_Grounded = true;
             }
+        }
+
+        fallWarning = Physics2D.IsTouchingLayers(transform.Find("GroundCheck").GetComponent<Collider2D>(), m_WhatIsGround);
+
+        if (fallWarning)
+        {
+            Debug.Log("Grounded  YET");
+        }
+        else
+        {
+            Debug.Log("YOU GONNA DIE BOY");
         }
 
         if (!m_Grounded)
@@ -126,6 +159,11 @@ public class EnemyZ1 : MonoBehaviour
         an.SetTrigger("Hurt");
         Vector3 dir = transform.right;
         //rb.AddForce(new Vector2(-dir.x * 3f, 1.2f), ForceMode2D.Impulse);
+    }
+
+    public void Patroling()
+    {
+
     }
 
     public void Dead()
