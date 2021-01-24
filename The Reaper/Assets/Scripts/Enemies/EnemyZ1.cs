@@ -9,13 +9,14 @@ public class EnemyZ1 : MonoBehaviour
     public Transform target;
     public enum Tipo { stay, patrol}
     public Tipo type;
+    public bool isFacingRight;
     [SerializeField] private EnemyAttack at;
-    [HideInInspector] public bool isFacingRight, runTime, onWall;
+    [HideInInspector] public bool runTime, wallCheck;
     [HideInInspector] public float oldSpeed;
     private Animator an;
     private Rigidbody2D rb;
     private Transform m_GroundCheck;
-    private bool m_Grounded, fallWarning;
+    public bool m_Grounded, fallWarning;
     [SerializeField] private LayerMask m_WhatIsGround;
 
     private void Awake()
@@ -59,24 +60,23 @@ public class EnemyZ1 : MonoBehaviour
 
         if (collision.tag == "Wall")
         {
+            Debug.Log("WOLL");
             if (type == Tipo.patrol)
             {
-                TurnAround();
+                wallCheck = true;
             }
         }
     }
 
-    public void TurnAround()
+    private void OnTriggerExit2D(Collider2D collision)
     {
-        if (isFacingRight)
+        if (collision.tag == "Wall")
         {
-            isFacingRight = false;
-            transform.rotation = Quaternion.Euler(0, 180, 0);
-        }
-        else
-        {
-            isFacingRight = true;
-            transform.rotation = Quaternion.Euler(0, 0, 0);
+            Debug.Log("NOT WOLL");
+            if (type == Tipo.patrol)
+            {
+                wallCheck = false;
+            }
         }
     }
 
@@ -96,11 +96,11 @@ public class EnemyZ1 : MonoBehaviour
 
         if (fallWarning)
         {
-            Debug.Log("Grounded  YET");
+            Debug.Log("FALL");
         }
         else
         {
-            Debug.Log("YOU GONNA DIE BOY");
+            Debug.Log("NOPE");
         }
 
         if (!m_Grounded)

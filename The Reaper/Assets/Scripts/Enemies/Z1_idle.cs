@@ -5,11 +5,19 @@ using UnityEngine;
 public class Z1_idle : StateMachineBehaviour
 {
     private bool isMoving;
-    private float speed;
+    private float speed, dir;
 
     // OnStateEnter is called when a transition starts and the state machine starts to evaluate this state
     override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
+        if (animator.GetComponent<EnemyZ1>().isFacingRight)
+        {
+            dir = 1;
+        }
+        else
+        {
+            dir = -1;
+        }
         isMoving = true;
         speed = animator.GetComponent<EnemyZ1>().speed;
     }
@@ -19,7 +27,7 @@ public class Z1_idle : StateMachineBehaviour
     {
         if (animator.GetComponent<EnemyZ1>().type == EnemyZ1.Tipo.patrol)
         {
-            Move(animator.gameObject);
+            Move(animator.GetComponent<EnemyZ1>());
         }
     }
 
@@ -29,17 +37,32 @@ public class Z1_idle : StateMachineBehaviour
         
     }
 
-    private void Move(GameObject obj)
+    private void Move(EnemyZ1 obj)
     {
-        float dir = 1;
-        if (obj.GetComponent<EnemyZ1>().isFacingRight)
+        if (obj.m_Grounded)
         {
-            dir = 1;
+            if (!obj.fallWarning)
+            {
+                Debug.Log("TURN!!");
+                TurnAround(obj);
+                dir *= -1;
+            }
+        }
+        obj.GetComponent<Rigidbody2D>().velocity = new Vector2(speed * dir, 0);
+    }
+
+    public void TurnAround(EnemyZ1 en)
+    {
+        en.transform.rotation = Quaternion.Euler(0, 180, 0);
+        if (en.isFacingRight)
+        {
+            en.isFacingRight = false;
+            dir = -1;
         }
         else
         {
-            dir = -1;
+            en.isFacingRight = true;
+            dir = 1;
         }
-        obj.GetComponent<Rigidbody2D>().velocity = new Vector2(speed * dir, 0);
     }
 }
