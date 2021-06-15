@@ -6,13 +6,24 @@ public class Player : MonoBehaviour
 {
     #region Variables y Referencias
     // Variables
-    public float Health, stamina, damage;
-    [SerializeField] private bool hit, strong, interact;
-    [SerializeField] private string direccionAtq, direccion, fightSequence;
+    [Header("Player Stats")]
+    [SerializeField] private float Health;
+    [SerializeField] private float stamina;
+    [SerializeField] private float damage;
+    [SerializeField] private float speed;
+    [Space]
+    [Header("Player State")]
+    [SerializeField] private bool hit;
+    [SerializeField] private float strong;
+    [SerializeField] private bool interact;
+    [SerializeField] private string direccionAtq;
+    [SerializeField] private string direccion;
+    [SerializeField] private string fightSequence;
     [SerializeField] private int comboNum;
     [SerializeField] private float timeHit;
-    private float time;
+    [SerializeField] private float timePerCombo;
 
+    [Header("Combo Chain")]
     // Keycode Array
     [SerializeField] private string[] combo = new string[2];
 
@@ -32,21 +43,20 @@ public class Player : MonoBehaviour
         comboNum = 0;
         direccion = "Right";
         hit = false;
-        time = 1.5f;
         timeHit = 0;
     }
 
     // Update is called once per frame
     void Update()
     {
-        // Direccion
+        // Get Anims
+        AnimCtrl();
+        // Direccion de ataque
         Estados();
         // Fight
         ComboFighting();
-        // Get Anims
-        AnimCtrl();
         // Cronometro para COMBOS
-        Timer();
+        ComboTimer();
     }
 
     #region Triggers
@@ -92,7 +102,7 @@ public class Player : MonoBehaviour
     }
     #endregion
 
-    public void Hurt(float damage)
+    public void PlayerDamageRecieved(float damage)
     {
         Health -= damage;
         an.Play("Hurt");
@@ -107,7 +117,7 @@ public class Player : MonoBehaviour
         an.SetInteger("Combo", comboNum);
     }
 
-    public void Timer()
+    public void ComboTimer()
     {
         //Tiempo para el combo
         if (timeHit > 0)
@@ -124,6 +134,7 @@ public class Player : MonoBehaviour
                 combo[i] = string.Empty;
                 fightSequence = string.Empty;
             }
+            hit = false;
         }
     }
 
@@ -150,7 +161,7 @@ public class Player : MonoBehaviour
         {
             hit = true;
             AddToCombo("Hit");
-            timeHit = 0.5f;
+            timeHit = timePerCombo;
             GroundFight();
         }
     }
