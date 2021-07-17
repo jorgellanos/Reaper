@@ -5,7 +5,8 @@ using UnityEngine;
 public class Scythe : MonoBehaviour {
 
     //Variables
-    public float damage, force;
+    public float damage;
+    public float force;
     public bool touch;
     public static int dir;
 
@@ -32,6 +33,12 @@ public class Scythe : MonoBehaviour {
         {
             rg = collision.GetComponent<Rigidbody2D>();
             touch = true;
+        }
+
+        if (collision.tag == "Enemy")
+        {
+            collision.GetComponent<Enemy>().ReceiveDamage(damage);
+            
         }
     }
 
