@@ -37,7 +37,7 @@ public class Scythe : MonoBehaviour {
 
         if (collision.tag == "Enemy")
         {
-            collision.GetComponent<Enemy>().ReceiveDamage(damage);
+            collision.GetComponent<Enemy>().ReceiveDamage(damage, transform);
             
         }
     }

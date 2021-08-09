@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -10,7 +11,6 @@ public class Player : MonoBehaviour
     [SerializeField] private float Health;
     [SerializeField] private float stamina;
     [SerializeField] private float damage;
-    [SerializeField] private float speed;
     [Space]
     [Header("Player State")]
     [SerializeField] private bool hit;
@@ -22,22 +22,28 @@ public class Player : MonoBehaviour
     [SerializeField] private int comboNum;
     [SerializeField] private float timeHit;
     [SerializeField] private float timePerCombo;
+    [SerializeField] private float knockbackModifier;
+    public bool damaged;
+    
+    private Transform knockbackOrigin;
 
     [Header("Combo Chain")]
     // Keycode Array
     [SerializeField] private string[] combo = new string[2];
 
     // Referencias
-    private Animator an;
+    private Animator anim;
     private Interact i;
     private Rigidbody2D rb;
+    public static Player instance;
     [SerializeField] private Scythe scythe;
     #endregion
 
     // Use this for initialization
     void Start()
     {
-        an = this.GetComponent<Animator>();
+        instance = this;
+        anim = this.GetComponent<Animator>();
         rb = this.GetComponent<Rigidbody2D>();
         scythe.damage = damage;
         comboNum = 0;
@@ -59,6 +65,22 @@ public class Player : MonoBehaviour
         ComboTimer();
     }
 
+    private void FixedUpdate()
+    {
+        if (damaged)
+        {
+            if (!anim.GetCurrentAnimatorStateInfo(0).IsTag("Damaged"))
+            {
+                PlayerKnockback(knockbackOrigin);
+            }
+            else
+            {
+                damaged = false;
+                knockbackOrigin = null;
+            }
+        }
+    }
+    
     #region Triggers
     private void OnCollisionEnter2D(Collision2D collision)
     {
@@ -102,19 +124,28 @@ public class Player : MonoBehaviour
     }
     #endregion
 
-    public void PlayerDamageRecieved(float damage)
+    private void PlayerKnockback(Transform knockbackOrigin)
+    {
+        
+        Debug.Log("KNOCKBACK");
+        Vector2 direction = transform.position - knockbackOrigin.position;
+        rb.AddForce(new Vector2(direction.x * knockbackModifier, direction.y * knockbackModifier), ForceMode2D.Impulse);
+        damaged = false;
+    }
+
+    public void PlayerDamageRecieved(float damage, Transform collision)
     {
         Health -= damage;
-        an.Play("Hurt");
-        Vector3 dir = transform.right;
-        //rb.AddForce(new Vector2(-dir.x * 3f, 1.5f), ForceMode2D.Impulse);
+        knockbackOrigin = collision;
+        damaged = true;
+        anim.Play("Hurt");
     }
 
     // Control de animaciones
     public void AnimCtrl()
     {
-        an.SetBool("Hitting", hit);
-        an.SetInteger("Combo", comboNum);
+        anim.SetBool("Hitting", hit);
+        anim.SetInteger("Combo", comboNum);
     }
 
     public void ComboTimer()
@@ -194,23 +225,23 @@ public class Player : MonoBehaviour
         switch (direccionAtq)
         {
             case "Arriba":
-                an.Play("Manuel_AH1");
+                anim.Play("Manuel_AH1");
                 break;
 
             case "Derecha":
-                an.Play("Manuel_AH2");
+                anim.Play("Manuel_AH2");
                 break;
 
             case "Izquierda":
-                an.Play("Manuel_AH2");
+                anim.Play("Manuel_AH2");
                 break;
 
             case "Abajo":
-                an.Play("Manuel_AH3");
+                anim.Play("Manuel_AH3");
                 break;
 
             case "":
-                an.Play("Manuel_AH2");
+                anim.Play("Manuel_AH2");
                 break;
         }
 

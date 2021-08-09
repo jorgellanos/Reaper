@@ -6,30 +6,14 @@ public abstract class Enemy : MonoBehaviour
     protected float CurrentHealth = 100;
     protected float CurrentSpeed;
     protected enum EnemyType { small, medium, heavy};
-
-    public event Action OnPathComplete;
+    
     public event Action OnDamageReceived;
     
     public void Chase(Transform target)
     {
-        Vector3 lastSeenPosition;
-
-        if (target is null)
-        {
-            lastSeenPosition = new Vector3(0, 0, 0);
-        }
-        else
-        {
-            lastSeenPosition = target.position;
-        }
-
         if (CanChase())
         {
             DoChase(target);
-        }
-        else
-        {
-            Searching(lastSeenPosition);
         }
     }
 
@@ -41,10 +25,10 @@ public abstract class Enemy : MonoBehaviour
         }
     }
 
-    public void ReceiveDamage(float damage)
+    public void ReceiveDamage(float damage, Transform enemyPosition)
     {
         var isDead = ApplyDamage(damage);
-        DamageReceived(isDead);
+        DamageReceived(isDead, enemyPosition);
         NotifyDamageReceived();
     }
 
@@ -67,8 +51,6 @@ public abstract class Enemy : MonoBehaviour
 
     protected abstract void Patroling();
 
-    protected abstract void Searching(Vector3 lastSeen);
-
     protected abstract bool CanChase();
 
     protected abstract void DoChase(Transform target);
@@ -77,5 +59,5 @@ public abstract class Enemy : MonoBehaviour
 
     protected abstract void DoAttack();
 
-    protected abstract void DamageReceived(bool isDead);
+    protected abstract void DamageReceived(bool isDead, Transform enemyPosition);
 }

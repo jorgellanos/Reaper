@@ -8,6 +8,7 @@ namespace UnityStandardAssets._2D
     {
         [SerializeField] private float m_MaxSpeed = 10f;                    // The fastest the player can travel in the x axis.
         [SerializeField] private float m_JumpForce = 400f;                  // Amount of force added when the player jumps.
+        [Range(1, 3)] [SerializeField] private float m_AirSpeedModifier = 1f;
         [Range(0, 1)] [SerializeField] private float m_CrouchSpeed = .36f;  // Amount of maxSpeed applied to crouching movement. 1 = 100%
         [SerializeField] private bool m_AirControl = false;                 // Whether or not a player can steer while jumping;
         [SerializeField] private LayerMask m_WhatIsGround;                  // A mask determining what is ground to the character
@@ -29,8 +30,7 @@ namespace UnityStandardAssets._2D
             m_Anim = GetComponent<Animator>();
             m_Rigidbody2D = GetComponent<Rigidbody2D>();
         }
-
-
+        
         private void FixedUpdate()
         {
             m_Grounded = false;
@@ -49,16 +49,6 @@ namespace UnityStandardAssets._2D
             m_Anim.SetFloat("vSpeed", m_Rigidbody2D.velocity.y);
 
             //CheckGround();
-        }
-
-        public void WallCheck()
-        {
-            RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector2.right);
-
-            if (hit.collider.tag == "wall")
-            {
-
-            }
         }
 
         public void Move(float move, bool crouch, bool jump)
@@ -111,8 +101,7 @@ namespace UnityStandardAssets._2D
                 m_Rigidbody2D.AddForce(new Vector2(0f, m_JumpForce));
             }
         }
-
-
+        
         private void Flip()
         {
             // Switch the way the player is labelled as facing.

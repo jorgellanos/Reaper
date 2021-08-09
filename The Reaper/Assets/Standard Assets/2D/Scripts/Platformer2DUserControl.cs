@@ -32,8 +32,16 @@ namespace UnityStandardAssets._2D
             // Read the inputs.
             bool crouch = Input.GetKey(KeyCode.LeftControl);
             float h = CrossPlatformInputManager.GetAxis("Horizontal");
-            // Pass all parameters to the character control script.
-            m_Character.Move(h, crouch, m_Jump);
+
+            if (!GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsTag("Damaged"))
+            {
+                m_Character.Move(h, crouch, m_Jump);
+
+            }
+            else
+            {
+                m_Character.Move(h * 0.5f, crouch, m_Jump);
+            }
             m_Jump = false;
         }
     }

@@ -16,22 +16,27 @@ public class Ghoul : Enemy
     [SerializeField] private float jumpCheckOffset;
     [SerializeField] private float jumpNodeHeightRequirement;
     [SerializeField] private float jumpModifier;
+    [SerializeField] private float knockbackModifier;
     [SerializeField] private float visionRange;
-    [SerializeField] private float startSearchDistance;
-    [SerializeField] private bool isSearching;
+    [SerializeField] private float stopChaseDistance;
     [SerializeField] private float timePerAttack;
 
     [Header("References")]
     [SerializeField] private Transform myEyes;
     [SerializeField] private Transform currentTarget;
     [SerializeField] private Animator anim;
-    
+    [SerializeField] private EnemyAttack attackController;
+    [SerializeField] private GameObject effectsController;
+
     private int currentWaypoint;
     private bool reachedEndOfPath;
+    private bool damaged;
     private Path path;
     private Seeker seeker;
     private Rigidbody2D rb;
-    private Transform targetLastSeen;
+
+    private float damageRecieved;
+    private Transform knockbackOrigin;
 
     // Start is called before the first frame update
     void Start()
@@ -53,12 +58,7 @@ public class Ghoul : Enemy
 
     private void Update()
     {
-        CheckIfTarget();
-
-        if (isSearching)
-        {
-            OnSearchEnd();
-        }
+        RaycastPhysics();
 
         if (currentTarget)
         {
@@ -72,8 +72,24 @@ public class Ghoul : Enemy
         {
             CalculatePath();
         }
+
+        if (damaged)
+        {
+            if (!anim.GetCurrentAnimatorStateInfo(0).IsTag("Damaged"))
+            {
+                Knockback(damageRecieved, knockbackOrigin);
+            }
+            else
+            {
+                damaged = false;
+                damageRecieved = 0;
+                knockbackOrigin = null;
+            }
+        }
     }
 
+    #region PATHFINDING
+    
     private void Move()
     {
         isGrounded = Physics2D.Raycast(transform.position, -Vector3.up, GetComponent<Collider2D>().bounds.extents.y + jumpCheckOffset);
@@ -143,110 +159,59 @@ public class Ghoul : Enemy
             currentWaypoint = 0;
         }
     }
+    #endregion
+    
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.tag.Equals("Player"))
+        {
+            Debug.Log("DEAL DAMAGE");
+            currentTarget = collision.transform;
+            Player.instance.PlayerDamageRecieved(attackController.damage, transform);
+        }
+    }
 
     private bool CheckDistanceAttack(Transform target)
     {
         return Vector2.Distance(transform.position, target.position) <= minAtkDistance;
     }
 
-    private bool CheckStartSearchingDistance(Transform target)
+    private bool CheckToStopChasing(Transform target)
     {
-        return Vector2.Distance(transform.position, target.position) > startSearchDistance;
+        return (Vector2.Distance(transform.position, target.position) >= stopChaseDistance);
     }
 
-    private bool CheckToStopSearching(Transform target)
-    {
-        if (Vector2.Distance(transform.position, target.position) <= 0.85f)
-        {
-            if (!currentTarget.tag.Equals("Player"))
-            {
-                return false;
-            }
-            else
-            {
-                return true;
-            }
-        }
-        else
-        {
-            return false;
-        }
-    }
-
-    private void CheckIfTarget()
+    private void RaycastPhysics()
     {
         RaycastHit2D hit = Physics2D.Raycast(myEyes.position, myEyes.right, visionRange);
         Debug.DrawRay(myEyes.position, myEyes.right * visionRange, Color.red, 0.1f);
 
-        if (hit.collider != null && !isSearching)
+        if (hit.collider != null)
         {
             if (hit.collider.tag.Equals("Player") )
             {
                 KeepTrackOfTarget(hit.transform);
             }
         }
-        else if (hit.collider != null && isSearching)
-        {
-            if (hit.collider.tag.Equals("Player"))
-            {
-                Debug.Log("TRACKING TARGET");
-                KeepTrackOfTarget(hit.transform);
-            }
-            else
-            {
-                Debug.Log("SEARCHING TARGET");
-                CheckTargetLastPosition();
-            }
-        }
-        else if (hit.collider is null && isSearching)
+        else
         {
             OnSearchEnd();
         }
     }
 
-    private void CheckTargetLastPosition()
-    {
-        currentTarget = targetLastSeen;
-        OnSearchEnd();
-    }
-
     private void KeepTrackOfTarget(Transform target)
     {
-        isSearching = true;
         currentTarget = target.transform;
-
-        if (targetLastSeen is null)
-        {
-            targetLastSeen = new GameObject().transform;
-            targetLastSeen.position = currentTarget.position;
-        }
-        else
-        {
-            targetLastSeen.position = currentTarget.position;
-        }
     }
 
     private void OnSearchEnd()
     {
         if (currentTarget)
         {
-            if (CheckToStopSearching(targetLastSeen))
+            if (CheckToStopChasing(currentTarget))
             {
-                isSearching = false;
-                Destroy(targetLastSeen.gameObject);
-                targetLastSeen = null;
                 currentTarget = null;
             }
-        }
-        else
-        {
-            if (targetLastSeen)
-            {
-                Destroy(targetLastSeen.gameObject);
-                targetLastSeen = null;
-                currentTarget = null;
-            }
-            isSearching = false;
         }
     }
 
@@ -273,14 +238,11 @@ public class Ghoul : Enemy
 
     IEnumerator WaitAfterAttack(float seconds)
     {
-        OnSearchEnd();
-
         yield return new WaitForSeconds(seconds);
 
         if (currentTarget)
         {
             KeepTrackOfTarget(currentTarget);
-            CheckTargetLastPosition();
         }
         else
         {
@@ -288,24 +250,38 @@ public class Ghoul : Enemy
         }
     }
 
-    protected override void DamageReceived(bool isDead)
+    private void Knockback(float damageRecieved, Transform knockbackOrigin)
     {
-        this.health = this.CurrentHealth;
-        anim.SetBool("InSight", false);
-        anim.SetTrigger("Hurt");
+        Vector2 direction = transform.position - knockbackOrigin.position;
+        rb.AddForce(new Vector2(direction.x * knockbackModifier, direction.y * knockbackModifier), ForceMode2D.Impulse);
+        damaged = false;
+    }
+
+    protected override void DamageReceived(bool isDead, Transform enemyPosition)
+    {
+        if (isDead)
+        {
+            knockbackOrigin = enemyPosition;
+            effectsController.SetActive(true);
+            anim.SetTrigger("Hurt");
+            Collider[] colliders = GetComponentsInChildren<Collider>();
+            for (int i = 0; i < colliders.Length; i++)
+            {
+                rb.isKinematic = true;
+                colliders[i].enabled = false;
+            }
+        }
+        else
+        {
+            this.health = this.CurrentHealth;
+            anim.SetBool("InSight", false);
+            anim.SetTrigger("Hurt");
+        }
     }
 
     protected override void Patroling()
     {
         this.CurrentSpeed = speed;
-
-    }
-
-    protected override void Searching(Vector3 lastSeen)
-    {
-        this.CurrentSpeed = speed;
-
-
     }
 
     protected override bool CanChase()
@@ -323,8 +299,6 @@ public class Ghoul : Enemy
     protected override void DoChase(Transform target)
     {
         this.CurrentSpeed = speed;
-
-
     }
 
 }
